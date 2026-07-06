@@ -1,6 +1,6 @@
 import { Application } from "express";
 import { ZodError } from "zod";
-import { AppError} from "../utils/AppError.js";
+import { AppError} from "../utils/appError.js";
 
 export default (app: Application): void => {
   const apiVersion = "/v1";
