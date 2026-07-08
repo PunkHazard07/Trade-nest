@@ -1,7 +1,10 @@
 import express from "express";
+import Middleware from "./routes/middleware.js";
+import Routes from "./routes/index.js";
 
 const app = express();
 
-app.use(express.json());
+Middleware(app);
+Routes(app);
 
 export default app;
