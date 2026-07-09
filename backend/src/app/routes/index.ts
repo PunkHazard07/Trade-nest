@@ -2,11 +2,13 @@ import { Application } from "express";
 import { ZodError } from "zod";
 import { AppError} from "../utils/appError.js";
 import User from "../modules/user/index.js";
+import Auth from "../modules/auth/index.js";
 
 export default (app: Application): void => {
   const apiVersion = "/v1";
 
   app.use(`${apiVersion}`, User);
+  app.use(`${apiVersion}`, Auth);
 
   app.get(`${apiVersion}/healthz`, (req, res) => {
     res.status(200).json({

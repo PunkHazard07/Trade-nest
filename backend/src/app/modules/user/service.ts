@@ -13,7 +13,7 @@ export const registerUser = async (input: RegisterInput) => {
     const hashedPassword = await hashPassword(input.password);
     const user = await repository.createUser({ ...input, password: hashedPassword });
 
-    const payload = { id: user.id, email: user.email };
+    const payload = { id: user.id, email: user.email, role: user.role };
     return {
         user: sanitizeUser(user),
         accessToken: signAccessToken(payload),
@@ -28,7 +28,7 @@ export const loginUser = async (input: LoginInput) => {
     const isPasswordValid = await comparePassword(input.password, user.passwordHash);
     if (!isPasswordValid) throw new AppError("Invalid email or password", 401);
 
-    const payload = { id: user.id, email: user.email };
+    const payload = { id: user.id, email: user.email, role: user.role };
     return {
         user: sanitizeUser(user),
         accessToken: signAccessToken(payload),
@@ -36,12 +36,16 @@ export const loginUser = async (input: LoginInput) => {
     };
 };
 
-export const logoutUser = async (token: string) => {
-    const decoded = decodeToken(token);
+export const logoutUser = async (accessToken: string, refreshToken: string) => {
+    const blacklist = async (token: string) => {
+        const decoded = decodeToken(token);
     if (decoded?.exp) {
         const remainingSeconds = decoded.exp - Math.floor(Date.now() / 1000);
         if (remainingSeconds > 0) {
-            await redis.set(`blacklist:${token}`, "true", { ex: remainingSeconds });
+                await redis.set(`blacklist:${token}`, "true", { ex: remainingSeconds });
+            }
         }
-    }
+    };
+
+    await Promise.all([blacklist(accessToken), blacklist(refreshToken)]);
 }
