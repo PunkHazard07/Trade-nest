@@ -14,12 +14,13 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    const { refreshToken } = req.body;
+    
+    if (!accessToken) {
         throw new AppError("Authentication token missing", 401);
     }
     
-    await logoutUser(token);
+    await logoutUser(accessToken, refreshToken);
     res.status(200).json({ success: true, message: "Logged out successfully" });
-})
+});
