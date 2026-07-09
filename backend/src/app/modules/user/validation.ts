@@ -21,3 +21,12 @@ export const logoutSchema = {
     })
 };
 
+export const updateProfileSchema = {
+    body: z.object({
+        fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
+        email: z.string().email("Invalid email address").optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+        message: "At least one field (fullName or email) must be provided",
+    }),
+};

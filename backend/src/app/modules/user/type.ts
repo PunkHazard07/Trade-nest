@@ -9,6 +9,11 @@ export interface LoginInput {
     password: string;
 }
 
+export interface UpdateProfileInput {
+    fullName?: string;
+    email?: string;
+}
+
 export interface SafeUser {
     id: string;
     fullName: string;

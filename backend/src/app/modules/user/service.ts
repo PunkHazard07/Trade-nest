@@ -3,7 +3,7 @@ import { signAccessToken, signRefreshToken, decodeToken } from "../../utils/jwt.
 import { redis } from "../../utils/redis.js";
 import * as repository from './repository.js';
 import { sanitizeUser } from "./utils.js";
-import { RegisterInput, LoginInput } from "./type.js";
+import { RegisterInput, LoginInput, UpdateProfileInput } from "./type.js";
 import { AppError } from "../../utils/appError.js";
 
 export const registerUser = async (input: RegisterInput) => {
@@ -49,3 +49,21 @@ export const logoutUser = async (accessToken: string, refreshToken: string) => {
 
     await Promise.all([blacklist(accessToken), blacklist(refreshToken)]);
 }
+
+export const getUserProfile = async (userId: string) => {
+    const user = await repository.findUserById(userId);
+    if (!user) throw new AppError("User not found", 404);
+    return sanitizeUser(user);
+};
+
+export const updateUserProfile = async (userId: string, input: UpdateProfileInput) => {
+    if (input.email) {
+        const existingUser = await repository.findUserByEmail(input.email);
+        if (existingUser && existingUser.id !== userId) {
+            throw new AppError("A user with this email already exists", 409);
+        }
+    }
+
+    const updatedUser = await repository.updateUserById(userId, input);
+    return sanitizeUser(updatedUser);
+};
