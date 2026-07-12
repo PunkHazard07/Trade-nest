@@ -9,7 +9,13 @@ export const findUserById = (id: string) => {
 };
 
 export const updateUserById = (id: string, data: { fullName?: string; email?: string }) => {
-    return prisma.user.update({ where: { id }, data });
+    return prisma.user.update({ 
+        where: { id }, 
+        data: {
+            ...(data.email && { email: data.email }),
+            ...(data.fullName && { fullName: data.fullName })
+        }
+    });
 };
 
 export const createUser = (data: { fullName: string; email: string; password: string}) => {
