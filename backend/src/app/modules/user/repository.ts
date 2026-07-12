@@ -8,6 +8,14 @@ export const findUserById = (id: string) => {
     return prisma.user.findUnique({ where: { id } });
 };
 
+export const markEmailVerified = (id: string) => {
+    return prisma.user.update({ where: { id }, data: { isEmailVerified: true } });
+};
+
+export const updatePasswordHash = (id: string, passwordHash: string) => {
+    return prisma.user.update({ where: { id }, data: { passwordHash } });
+};
+
 export const updateUserById = (id: string, data: { fullName?: string; email?: string }) => {
     return prisma.user.update({ 
         where: { id }, 

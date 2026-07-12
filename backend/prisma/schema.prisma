@@ -22,12 +22,33 @@ model User {
   phone        String?  @unique
   role         Role     @default(USER)
   isActive     Boolean  @default(true)
+  isEmailVerified Boolean @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   vendorProfile VendorProfile?
+  verificationCodes VerificationCode[]
 
   @@map("users")
+}
+
+enum VerificationPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model VerificationCode {
+  id         String              @id @default(uuid()) @db.Uuid
+  userId     String              @db.Uuid
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose    VerificationPurpose
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime            @default(now())
+
+  @@index([userId, purpose])
+  @@map("verification_codes")
 }
 
 model VendorProfile {

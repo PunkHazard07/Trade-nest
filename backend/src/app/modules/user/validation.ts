@@ -21,6 +21,13 @@ export const logoutSchema = {
     })
 };
 
+export const verifyEmailSchema = {
+  body: z.object({
+    email: z.string().email("Invalid email address"),
+    code: z.string().length(6, "Code must be 6 digits"),
+  }),
+};
+
 export const updateProfileSchema = {
     body: z.object({
         fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
@@ -29,4 +36,24 @@ export const updateProfileSchema = {
     .refine((data) => Object.keys(data).length > 0, {
         message: "At least one field (fullName or email) must be provided",
     }),
+};
+
+export const resendVerificationSchema = {
+  body: z.object({
+    email: z.string().email("Invalid email address"),
+  }),
+};
+
+export const forgotPasswordSchema = {
+  body: z.object({
+    email: z.string().email("Invalid email address"),
+  }),
+};
+
+export const resetPasswordSchema = {
+  body: z.object({
+    email: z.string().email("Invalid email address"),
+    code: z.string().length(6, "Code must be 6 digits"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  }),
 };
