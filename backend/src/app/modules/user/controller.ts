@@ -24,6 +24,26 @@ export const updateProfile = asyncHandler(async (req: AuthenticatedRequest, res:
     res.status(200).json({ success: true, message: "Profile updated successfully", data: profile });
 });
 
+export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+    const result = await service.verifyEmail(req.body.email, req.body.code);
+    res.status(200).json({ success: true, message: "Email verified successfully", data: result });
+});
+
+export const resendVerificationEmail = asyncHandler(async (req: Request, res: Response) => {
+    await service.resendVerificationEmail(req.body.email);
+    res.status(200).json({ success: true, message: "Verification code sent" });
+});
+
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+    await service.forgotPassword(req.body.email);
+    res.status(200).json({ success: true, message: "If an account exists, a reset code has been sent" });
+});
+
+export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+    await service.resetPassword(req.body.email, req.body.code, req.body.newPassword);
+    res.status(200).json({ success: true, message: "Password reset successfully" });
+});
+
 export const logout = asyncHandler(async (req: Request, res: Response) => {
     const accessToken = req.headers.authorization?.split(" ")[1];
     const { refreshToken } = req.body;
