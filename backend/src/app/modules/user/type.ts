@@ -2,6 +2,7 @@ export interface RegisterInput {
     fullName: string;
     email: string;
     password: string;
+    phoneNumbers: string[];
 }
 
 export interface LoginInput {
@@ -12,6 +13,13 @@ export interface LoginInput {
 export interface UpdateProfileInput {
     fullName?: string;
     email?: string;
+    phoneNumbers?:  PhoneNumberInput[];
+}
+
+export interface SafePhone {
+    id: string;
+    number: string;
+    isPrimary: boolean;
 }
 
 export interface SafeUser {
@@ -19,4 +27,10 @@ export interface SafeUser {
     fullName: string;
     email: string;
     createdAt: Date;
+    phoneNumbers: SafePhone[];
+}
+
+export interface PhoneNumberInput {
+    id?: string;     
+    number: string;
 }
