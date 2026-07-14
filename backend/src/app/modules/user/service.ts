@@ -13,6 +13,11 @@ export const registerUser = async (input: RegisterInput) => {
     const existingUser = await repository.findUserByEmail(input.email);
     if (existingUser) throw new AppError("A user with this email already exists", 409);
 
+    const existingPhones = await repository.findPhonesByNumbers(input.phoneNumbers);
+    if (existingPhones.length > 0) {
+        throw new AppError("One or more phone numbers are already in use", 409);
+    }
+
     const hashedPassword = await hashPassword(input.password);
     const user = await repository.createUser({ ...input, password: hashedPassword });
 
@@ -28,11 +33,8 @@ export const registerUser = async (input: RegisterInput) => {
         data: { email: user.email, fullName: user.fullName, code },
     }).catch((err) => console.error("Failed to send verification email:", err));
 
-    const payload = { id: user.id, email: user.email, role: user.role };
     return {
         user: sanitizeUser(user),
-        accessToken: signAccessToken(payload),
-        refreshToken: signRefreshToken(payload),
     };
 };
 
@@ -126,6 +128,22 @@ export const updateUserProfile = async (userId: string, input: UpdateProfileInpu
         const existingUser = await repository.findUserByEmail(input.email);
         if (existingUser && existingUser.id !== userId) {
             throw new AppError("A user with this email already exists", 409);
+        }
+    }
+
+    if (input.phoneNumbers) {
+        const user = await repository.findUserById(userId);
+        const ownedIds = new Set(user?.phoneNumbers.map((p) => p.id));
+        for (const entry of input.phoneNumbers) {
+            if (entry.id && !ownedIds.has(entry.id)) {
+                throw new AppError("Invalid phone number reference", 400);
+            }
+        }
+
+        const numbersToCheck = input.phoneNumbers.map((p) => p.number);
+        const conflicting = await repository.findPhonesByNumbersExcludingUser(numbersToCheck, userId);
+        if (conflicting.length > 0) {
+            throw new AppError("One or more phone numbers are already in use", 409);
         }
     }
 

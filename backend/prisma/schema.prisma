@@ -19,7 +19,6 @@ model User {
   email        String   @unique
   passwordHash String
   fullName     String?
-  phone        String?  @unique
   role         Role     @default(USER)
   isActive     Boolean  @default(true)
   isEmailVerified Boolean @default(false)
@@ -28,8 +27,21 @@ model User {
 
   vendorProfile VendorProfile?
   verificationCodes VerificationCode[]
+  phoneNumbers PhoneNumber[]
 
   @@map("users")
+}
+
+model PhoneNumber {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  number    String   @unique
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("phone_numbers")
 }
 
 enum VerificationPurpose {

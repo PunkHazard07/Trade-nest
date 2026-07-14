@@ -6,7 +6,7 @@ import { AppError } from "../../utils/appError.js";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const result = await service.registerUser(req.body);
-    res.status(201).json({ success: true, message: "User registered successfully", data: result });
+    res.status(201).json({ success: true, message: "Registration successful. Please check your email to verify your account before logging in.", data: result });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
