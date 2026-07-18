@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "./jwt.js";
 import { redis } from "./redis.js";
 import { AppError } from "./appError.js";
+import { Role } from "@prisma/client"
 
 export interface AuthenticatedRequest extends Request {
-    user?: { id: string; email: string };
+    user?: { id: string; email: string; role: Role; };
 }
 
 export const authMiddleware = async (
@@ -32,4 +33,16 @@ try {
     if (error instanceof AppError) return next(error);
     next(new AppError("Invalid or expired token", 401));
     }
+};
+
+export const requireRole = (...allowedRoles: Role[]) => {
+    return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        if (!req.user) {
+            return next(new AppError("Authentication required", 401));
+        }
+        if (!allowedRoles.includes(req.user.role)) {
+            return next(new AppError("Insufficient permissions", 403));
+        }
+        next();
+    };
 };
